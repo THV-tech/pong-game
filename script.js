@@ -13,7 +13,7 @@ const player = {
     width: paddleWidth,
     height: paddleHeight,
     dy: 0,
-    speed: 6
+    speed: 7
 };
 
 const computer = {
@@ -22,16 +22,16 @@ const computer = {
     width: paddleWidth,
     height: paddleHeight,
     dy: 0,
-    speed: 4
+    speed: 5.5
 };
 
 const ball = {
     x: canvas.width / 2,
     y: canvas.height / 2,
-    dx: 5,
-    dy: 5,
+    dx: 6,
+    dy: 6,
     size: ballSize,
-    speed: 5
+    speed: 6
 };
 
 let playerScore = 0;
@@ -56,20 +56,21 @@ document.addEventListener('mousemove', (e) => {
 
 // Update player paddle position
 function updatePlayer() {
-    // Arrow keys control
+    // Arrow keys control (has priority)
     if (keys['ArrowUp'] || keys['w']) {
         player.dy = -player.speed;
     } else if (keys['ArrowDown'] || keys['s']) {
         player.dy = player.speed;
     } else {
-        player.dy = 0;
-    }
-
-    // Mouse control
-    if (mouseY > player.y + player.height / 2) {
-        player.dy = Math.min(player.speed, mouseY - (player.y + player.height / 2)) * 0.05;
-    } else if (mouseY < player.y + player.height / 2) {
-        player.dy = Math.max(-player.speed, mouseY - (player.y + player.height / 2)) * 0.05;
+        // Mouse control - smooth tracking without dampening
+        const paddleCenter = player.y + player.height / 2;
+        const diff = mouseY - paddleCenter;
+        
+        if (Math.abs(diff) > 3) {
+            player.dy = Math.sign(diff) * player.speed;
+        } else {
+            player.dy = 0;
+        }
     }
 
     player.y += player.dy;
